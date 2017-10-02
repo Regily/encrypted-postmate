@@ -9,8 +9,7 @@ const info = require('./package.json');
 
 const banner = `@overview ${info.name} - ${info.description}.
 @copyright Copyright (c) ${(new Date()).getFullYear()} ${info.author.name}
-@license   Licensed under ${info.license.type} license
-           See ${info.license.url}
+@license   Licensed under ${info.license} license
 @version   ${info.version}`;
 
 module.exports = [

@@ -1,6 +1,6 @@
 {
   "name": "secure-postmate",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A powerful, simple, promise-based, secure postMessage library",
   "main": "build/secure-postmate.min.js",
   "module": "src/secure-postmate.js",
@@ -55,10 +55,7 @@
     "name": "Marat Dyatko",
     "email": "i@marat.by"
   },
-  "license": {
-    "type": "MIT",
-    "url": "https://opensource.org/licenses/MIT"
-  },
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/regily/secure-postmate/issues"
   },
