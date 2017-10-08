@@ -1,6 +1,6 @@
 {
   "name": "secure-postmate",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A powerful, simple, promise-based, secure postMessage library",
   "main": "build/secure-postmate.min.js",
   "module": "src/secure-postmate.js",
