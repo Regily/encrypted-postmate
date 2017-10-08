@@ -91,6 +91,18 @@ function resolveValue(model, property) {
   return Promise.resolve(unwrappedContext);
 }
 
+function postMessage(target, message, origin) {
+  target.postMessage(message, origin);
+}
+
+function listenMessage(target, callback) {
+  target.addEventListener('message', callback, false);
+}
+
+function unlistenMessage(target, callback) {
+  target.removeEventListener('message', callback);
+}
+
 /**
  * Composes an API to be used by the parent
  * @param {Object} info Information on the consumer
@@ -124,7 +136,7 @@ class ParentAPI {
       }
     };
 
-    this.parent.addEventListener('message', this.listener, false);
+    listenMessage(this.parent, this.listener);
     log('Parent: Awaiting event emissions from Child');
   }
 
@@ -137,16 +149,16 @@ class ParentAPI {
         const message = this.getIncomingMessage(e.data);
 
         if (message.uid === uid && message.postmate === 'reply') {
-          this.parent.removeEventListener('message', transact, false);
+          unlistenMessage(this.parent, transact);
           resolve(message.value);
         }
       };
 
       // Prepare for response from Child...
-      this.parent.addEventListener('message', transact, false);
+      listenMessage(this.parent, transact);
 
       // Then ask child for information
-      this.child.postMessage(this.getOutcomingMessage({
+      postMessage(this.child, this.getOutcomingMessage({
         postmate: 'request',
         property,
         uid
@@ -156,7 +168,7 @@ class ParentAPI {
 
   call(property, data) {
     // Send information to the child
-    this.child.postMessage(this.getOutcomingMessage({
+    postMessage(this.child, this.getOutcomingMessage({
       postmate: 'call',
       property,
       data
@@ -169,7 +181,7 @@ class ParentAPI {
 
   destroy() {
     log('Parent: Destroying Postmate instance');
-    window.removeEventListener('message', this.listener, false);
+    unlistenMessage(window, this.listener);
     this.frame.parentNode.removeChild(this.frame);
   }
 
@@ -193,7 +205,7 @@ class ChildAPI {
     log('Child: Registering API');
     log('Child: Awaiting messages...');
 
-    this.child.addEventListener('message', (e) => {
+    listenMessage(this.child, (e) => {
       if (!sanitize(e, this.parentOrigin, this.messageType)) return;
       const message = this.getIncomingMessage(e.data);
 
@@ -209,7 +221,7 @@ class ChildAPI {
 
       // Reply to Parent
       resolveValue(this.model, property)
-        .then(value => e.source.postMessage(this.getOutcomingMessage({
+        .then(value => postMessage(e.source, this.getOutcomingMessage({
           property,
           postmate: 'reply',
           uid,
@@ -220,7 +232,7 @@ class ChildAPI {
 
   emit(name, data) {
     log(`Child: Emitting Event "${name}"`, data);
-    this.parent.postMessage(this.getOutcomingMessage({
+    postMessage(this.parent, this.getOutcomingMessage({
       postmate: 'emit',
       value: {
         name,
@@ -281,7 +293,7 @@ class Postmate {
         if (message.postmate === 'handshake-reply') {
           clearInterval(responseInterval);
           log('Parent: Received handshake reply from Child');
-          this.parent.removeEventListener('message', reply, false);
+          unlistenMessage(this.parent, reply);
 
           this.childOrigin = e.origin;
           log('Parent: Saving Child origin', this.childOrigin);
@@ -297,14 +309,14 @@ class Postmate {
         return reject('Failed handshake');
       };
 
-      this.parent.addEventListener('message', reply, false);
+      listenMessage(this.parent, reply);
 
       const request = this.getHandshakeRequest();
 
       const doSend = () => {
         attempt++;
         log(`Parent: Sending handshake attempt ${attempt}, ${childOrigin}`);
-        this.child.postMessage(request, childOrigin);
+        postMessage(this.child, request, childOrigin);
 
         if (attempt === maxHandshakeRequests) {
           clearInterval(responseInterval);
@@ -372,7 +384,7 @@ Postmate.Model = class Model {
 
         if (e.data.postmate === 'handshake') {
           log('Child: Received handshake from Parent');
-          this.child.removeEventListener('message', shake, false);
+          unlistenMessage(this.child, shake);
 
           log('Child: Inherited and extended model from Parent');
           this.handleHandshakeData(e.data);
@@ -381,7 +393,7 @@ Postmate.Model = class Model {
           this.parentOrigin = e.origin;
 
           log('Child: Sending handshake reply to Parent');
-          e.source.postMessage(this.getOutcomingMessage(this.getHandshakeResponse()), this.parentOrigin);
+          postMessage(e.source, this.getOutcomingMessage(this.getHandshakeResponse()), this.parentOrigin);
 
           resolve(new ChildAPI(this));
         } else {
@@ -390,7 +402,7 @@ Postmate.Model = class Model {
       };
 
       log('Child: Waiting for handshake from Parent');
-      this.child.addEventListener('message', shake, false);
+      listenMessage(this.child, shake);
     });
   }
 
