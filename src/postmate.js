@@ -52,7 +52,11 @@ function resolveOrigin(url) {
   const a = document.createElement('a');
 
   a.href = url;
-  return a.origin || `${a.protocol}//${a.host}`;
+
+  const protocol = a.protocol.length > 4 ? a.protocol : window.location.protocol;
+  const host = a.host.length ? a.host : window.location.host;
+
+  return a.origin || `${protocol}//${host}`;
 }
 
 /**
@@ -92,11 +96,14 @@ function resolveValue(model, property) {
   return Promise.resolve(unwrappedContext);
 }
 
-let shouldStringifyMessages = true;
+let shouldStringifyMessages = false;
 
 try {
-  window.postMessage({}, '*');
-  shouldStringifyMessages = false;
+  window.postMessage({
+    toString: () => {
+      shouldStringifyMessages = true;
+    }
+  }, '*');
 } catch (e) {}
 
 function postMessage(target, message, origin) {
@@ -104,7 +111,11 @@ function postMessage(target, message, origin) {
     message = JSON.stringify(message);
   }
 
-  target.postMessage(message, origin);
+  try {
+    target.postMessage(message, origin);
+  } catch (e) {
+    throw new Error(`<${origin}> ${message}`);
+  }
 }
 
 function listenMessage(target, callback) {
