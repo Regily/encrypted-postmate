@@ -1,3 +1,5 @@
+require('es6-promise/auto');
+
 const Postmate = require('../../src/postmate');
 
 let parentAPI = null;
