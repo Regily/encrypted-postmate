@@ -66,6 +66,11 @@ module.exports = function (config) {
 
     files: [
       {
+        pattern: 'node_modules/es6-promise/dist/es6-promise.auto.min.js',
+        watched: false,
+        included: true
+      },
+      {
         pattern: 'test/*.spec.js',
         watched: false
       },
