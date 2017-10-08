@@ -104,18 +104,16 @@ try {
       shouldStringifyMessages = true;
     }
   }, '*');
-} catch (e) {}
+} catch (e) {
+  shouldStringifyMessages = true;
+}
 
 function postMessage(target, message, origin) {
   if (shouldStringifyMessages) {
     message = JSON.stringify(message);
   }
 
-  try {
-    target.postMessage(message, origin);
-  } catch (e) {
-    throw new Error(`<${origin}> ${message}`);
-  }
+  target.postMessage(message, origin);
 }
 
 function listenMessage(target, callback) {
