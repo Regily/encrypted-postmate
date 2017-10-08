@@ -35,9 +35,15 @@ describe('secure postmate', function() {
       url: childURL
     }).then(function (child) {
       var uid = Math.random();
-      child.call('setRandomId', uid);
-      child.get('getRandomId').then(function (randomId) {
-        expect(randomId).to.equal(uid);
+      var date = new Date();
+      child.call('setRandomId', {
+        uid,
+        date
+      });
+      child.get('getRandomId').then(function (data) {
+        expect(data.uid).to.equal(uid);
+        expect(data.date).to.be.an.instanceof(Date);
+        expect(+data.date).to.equal(+date);
         child.destroy();
         done();
       })

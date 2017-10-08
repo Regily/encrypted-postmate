@@ -1,4 +1,6 @@
 require('./secure-env');
+require('json.date-extensions');
+
 const ecc = require('./ecc');
 const Postmate = require('./postmate');
 
@@ -56,7 +58,7 @@ class SecurePostmate extends Postmate {
   getIncomingMessage(data) {
     const message = decrypt(this, data);
 
-    return JSON.parse(message);
+    return JSON.parseWithDate(message);
   }
 
   getOutcomingMessage(data) {

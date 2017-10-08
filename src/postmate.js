@@ -104,9 +104,7 @@ try {
       shouldStringifyMessages = true;
     }
   }, '*');
-} catch (e) {
-  shouldStringifyMessages = true;
-}
+} catch (e) {}
 
 function postMessage(target, message, origin) {
   if (shouldStringifyMessages) {
