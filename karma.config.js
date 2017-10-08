@@ -38,6 +38,12 @@ const customLaunchers = {
     browserName: 'MicrosoftEdge',
     platform: 'Windows 10',
     version: '13.10586'
+  },
+  slIE: {
+    base: 'SauceLabs',
+    browserName: 'internet explorer',
+    platform: 'Windows 7',
+    version: '11.0'
   }
 };
 

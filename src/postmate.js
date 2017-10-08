@@ -1,3 +1,4 @@
+require('json.date-extensions');
 
 /**
  * The type of messages our frames our sending
@@ -91,16 +92,38 @@ function resolveValue(model, property) {
   return Promise.resolve(unwrappedContext);
 }
 
+let shouldStringifyMessages = true;
+
+try {
+  window.postMessage({}, '*');
+  shouldStringifyMessages = false;
+} catch (e) {}
+
 function postMessage(target, message, origin) {
+  if (shouldStringifyMessages) {
+    message = JSON.stringify(message);
+  }
+
   target.postMessage(message, origin);
 }
 
 function listenMessage(target, callback) {
-  target.addEventListener('message', callback, false);
+  const listener = (e) => {
+    const message = shouldStringifyMessages ? JSON.parseWithDate(e.data) : e.data;
+
+    callback({
+      data: message,
+      origin: e.origin,
+      source: e.source
+    });
+  };
+
+  callback.listener = listener;
+  target.addEventListener('message', listener, false);
 }
 
 function unlistenMessage(target, callback) {
-  target.removeEventListener('message', callback);
+  target.removeEventListener('message', callback.listener || callback);
 }
 
 /**

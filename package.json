@@ -61,6 +61,7 @@
   },
   "homepage": "https://github.com/regily/secure-postmate",
   "dependencies": {
+    "json.date-extensions": "^1.2.2",
     "sjcl": "^1.0.7"
   }
 }
