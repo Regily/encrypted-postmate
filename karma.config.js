@@ -38,6 +38,12 @@ const customLaunchers = {
     browserName: 'MicrosoftEdge',
     platform: 'Windows 10',
     version: '13.10586'
+  },
+  slIE: {
+    base: 'SauceLabs',
+    browserName: 'internet explorer',
+    platform: 'Windows 7',
+    version: '11.0'
   }
 };
 
@@ -59,6 +65,11 @@ module.exports = function (config) {
     captureTimeout: 180000,
 
     files: [
+      {
+        pattern: 'node_modules/es6-promise/dist/es6-promise.auto.min.js',
+        watched: false,
+        included: true
+      },
       {
         pattern: 'test/*.spec.js',
         watched: false
