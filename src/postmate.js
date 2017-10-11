@@ -54,7 +54,7 @@ function resolveOrigin(url) {
   a.href = url;
 
   const protocol = a.protocol.length > 4 ? a.protocol : window.location.protocol;
-  const host = a.host.length ? a.host : window.location.host;
+  const host = a.host.length ? ((a.port === '80' || a.port === '443') ? a.hostname : a.host) : window.location.host;
 
   return a.origin || `${protocol}//${host}`;
 }
