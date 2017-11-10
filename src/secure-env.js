@@ -1,30 +1,32 @@
-if (window) {
+const isConfigurable = (parent, prop) => {
+  let descriptor = Object.getOwnPropertyDescriptor(parent, prop);
+
+  return descriptor && descriptor.configurable;
+};
+
+const configureProperties = (parent, props) => {
   const propertyDefinition = {
     enumerable: true,
     configurable: false,
     writable: false
   };
 
+  props.forEach((prop) => {
+    if (isConfigurable(parent, prop)) {
+      propertyDefinition.value = parent[prop];
+      try {
+        Object.defineProperty(parent, prop, propertyDefinition);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  });
+};
+
+if (window) {
   if (Object.defineProperty) {
-    ['crypto', 'msCrypto', 'Math'].forEach((prop) => {
-      propertyDefinition.value = window[prop];
-
-      try {
-        Object.defineProperty(window, prop, propertyDefinition);
-      } catch (e) {
-        console.error(e);
-      }
-    });
-
-    ['random', 'max', 'min', 'pow', 'floor', 'ceil'].forEach((prop) => {
-      propertyDefinition.value = Math[prop];
-
-      try {
-        Object.defineProperty(Math, prop, propertyDefinition);
-      } catch (e) {
-        console.error(e);
-      }
-    });
+    configureProperties(window, ['crypto', 'msCrypto', 'Math']);
+    configureProperties(Math, ['random', 'max', 'min', 'pow', 'floor', 'ceil']);
   }
 
   if (Object.freeze) {
@@ -44,5 +46,4 @@ if (window) {
       }
     }
   }
-
 }
